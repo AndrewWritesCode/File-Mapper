@@ -77,6 +77,8 @@ def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
             if extQ.lower() == 'y':
                 extOmission = input('Enter [STOP] to finish or enter a file extension that you would like to omit '
                                     'from your file map (such as .py, .cpp, etc): ')
+                if not extOmission.startswith('.'):
+                    extOmission = '.' + extOmission
                 is_omitting_exts = True
                 if extOmission.upper() == 'STOP':
                     break
@@ -106,6 +108,8 @@ def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
             path = dir[l_root:]
 
             for extension in exts2omit:
+                if not extension.startswith('.'):
+                    extension = '.' + extension
                 e = len(file) - len(extension)
                 if file[e:] == extension:
                     omitFile = True
@@ -120,7 +124,6 @@ def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
                         "filepath-" + str(pathNumber): str(path)
                     }
                     dict[filename] = fileInfo
-                    print('RUNNING... PLEASE WAIT...')
                     continue
                 else:
                     fileInfo = {
