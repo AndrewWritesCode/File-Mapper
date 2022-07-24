@@ -1,6 +1,7 @@
 import os
 import json
 from sys import exit
+import zipfile
 
 
 def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
@@ -102,7 +103,6 @@ def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
             isDup = False
             pathNumber = 1
             filename = str(file)
-            l = len(filename)
             path = dir[l_root:]
 
             for extension in exts2omit:
@@ -180,4 +180,6 @@ def FileMapper(mode='function', fxnRootDir='', fxnJsonPath='', exts2omit=[]):
     return dict
 
 
-FileMapper(mode='terminal')
+def Unzip(src, dst):
+    with zipfile.ZipFile(src, 'r') as z:
+        z.extractall(dst)
