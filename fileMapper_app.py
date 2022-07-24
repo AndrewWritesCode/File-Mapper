@@ -76,9 +76,6 @@ class MainWindow(QMainWindow):
             self.extOmitLabel.setText(omit_text)
 
     def Generate(self):
-        print(appInput["root_dir"])
-        print(appInput["json_path"])
-        print(appInput["ext_omits"])
         if (appInput["root_dir"] != "UNDEFINED") and (appInput["json_path"] != "UNDEFINED"):
             self.statusLabel.setText("Status: RUNNING")
             FileMapper(mode='function',
@@ -87,6 +84,7 @@ class MainWindow(QMainWindow):
                        exts2omit=appInput["ext_omits"])
             appInput["generated"] = True
             self.statusLabel.setText("Status: DONE!")
+            self.outputButton.setText("Open " + os.path.basename(appInput["json_path"]))
         elif appInput["root_dir"] == "UNDEFINED":
             self.statusLabel.setText("Status: Root Dir Undefined!")
         else:
