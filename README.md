@@ -12,16 +12,16 @@ By running terminal.py and following the temrinal prompts, each file will be map
 
 ## USE AS A FUNCTION:
 
-# *import FileMapper from fileMapper*
+*import FileMapper from fileMapper*
 
-# *fileMap = FileMapper(fxnRootDir='yourRootPathHere', fxnJsonPath='yourOutputJsonPAth Here', exts2omit=['.py', '.txt', '.etc'])*
+*fileMap = FileMapper(fxnRootDir='yourRootPathHere', fxnJsonPath='yourOutputJsonPAth Here', exts2omit=['.py', '.txt', '.etc'])*
 after defining the variables in the FIleMapper fxn, a JSON will be generated (also returns a python dictionary)
 
 
-# *fileMap_noJSON = FileMapper(fxnRootDir='yourRootPathHere', exts2omit=['.py', '.txt', '.etc'])*
+*fileMap_noJSON = FileMapper(fxnRootDir='yourRootPathHere', exts2omit=['.py', '.txt', '.etc'])*
 omitting the fxnJsonPath will result in no JSON file being generated, and will return a python dictionary
 
 
-# *fileMap_noJSON = FileMapper(mode='terminal')*
+*fileMap_noJSON = FileMapper(mode='terminal')*
 setting mode='terminal' will prompt user for all variables via the temrinal
 
