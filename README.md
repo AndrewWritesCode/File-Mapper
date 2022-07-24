@@ -3,6 +3,7 @@ Maps all files rooted to a given directory in a JSON file
 
 ## GUI USE:
 -Be sure to have PyQt5 installed
+
 run fileMapper_app.py
 
 ## TERMINAL USE:
