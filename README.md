@@ -2,7 +2,7 @@
 Maps all files rooted to a given directory and stores in a python dictionary
 
 ## GUI USE:
--Be sure to have PyQt5 installed
+-Be sure to have PyQt5 installed (and python 3.10)
 
 1) run fileMapper_app.py
 2) define all paths
