@@ -85,9 +85,8 @@ def main():
                 file_map = FileMapper(root_dir=appInput["root_dir"],
                                       extensions2omit=appInput["ext_omits"])
                 json_object = json.dumps(file_map, indent=4)
-                f = open(appInput["json_path"], "w")
-                f.write(json_object)
-                f.close()
+                with open(appInput["json_path"], "w") as j:
+                    j.write(json_object)
                 appInput["generated"] = True
                 self.statusLabel.setText("Status: DONE!")
                 self.outputButton.setText("Open " + os.path.basename(appInput["json_path"]))
