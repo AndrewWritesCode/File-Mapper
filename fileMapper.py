@@ -8,7 +8,9 @@ def Unzip(src, dst):
         z.extractall(dst)
 
 
-def FileMapper(root_dir, extensions2omit=[]):
+def FileMapper(root_dir, extensions2omit=None):
+    if extensions2omit is None:
+        extensions2omit = []
     file_map = {}
     if not os.path.exists(root_dir):
         print('Unable to change to root directory')

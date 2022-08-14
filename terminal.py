@@ -84,9 +84,8 @@ def main():
     file_map = FileMapper(root_dir, extensions2omit=extensions2omit)
 
     json_object = json.dumps(file_map, indent=4)
-    f = open(json_path, "w")
-    f.write(json_object)
-    f.close()
+    with open(json_path, "w") as j:
+        j.write(json_object)
 
     print('FILEMAPPER RUN COMPLETE')
     print('SAVED ' + str(json_path))
