@@ -55,7 +55,7 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
                 file_info = {
                     "filename": filename,
                     "number of paths": path_number,
-                    "filepath-" + str(path_number): str(path)
+                    f"filepath-{str(path_number)}": str(path)
                 }
                 file_map[filename] = file_info
             else:
@@ -64,12 +64,12 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
                     path_number = file_map[filename]["number of paths"]
                     path_number = path_number + 1
                     file_map[filename]["number of paths"] = path_number
-                    file_map[filename]["filepath-" + str(path_number)] = str(path)
+                    file_map[filename][f"filepath-{str(path_number)}"] = str(path)
                 else:
                     file_info = {
                         "filename": filename,
                         "number of paths": path_number,
-                        "filepath-" + str(path_number): str(path)
+                        f"filepath-{str(path_number)}": str(path)
                     }
                     file_map[filename] = file_info
     return file_map
