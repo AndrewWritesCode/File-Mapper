@@ -8,9 +8,11 @@ def Unzip(src, dst):
         z.extractall(dst)
 
 
-def FileMapper(root_dir, extensions2omit=None):
+def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
     if extensions2omit is None:
         extensions2omit = []
+    if extensions2include is None:
+        extensions2include = []
     file_map = {}
     if not os.path.exists(root_dir):
         print('Unable to change to root directory')
@@ -26,9 +28,22 @@ def FileMapper(root_dir, extensions2omit=None):
             path = directory[l_root:]
 
             # checks if file has extension that is omitted
+            def ext_check(ext):
+                if not ext.startswith('.'):
+                    ext = f'.{ext}'
+                return ext
+
+            # include filter pass
+            for extension in extensions2include:
+                omit_file = True
+                extension = ext_check(extension)
+                if os.path.splitext(file)[1] == extension:
+                    omit_file = False
+                    break
+
+            # exclude filter pass
             for extension in extensions2omit:
-                if not extension.startswith('.'):
-                    extension = '.' + extension
+                extension = ext_check(extension)
                 if os.path.splitext(file)[1] == extension:
                     omit_file = True
                     break

@@ -1,16 +1,19 @@
 # File-Mapper
 Maps all files rooted to a given directory and stores in a python dictionary
 
-## GUI USE:
--Be sure to have PyQt5 installed (and python 3.10)
-
-1) run fileMapper_app.py
-2) define all paths
-3) generate JSON file of filemap
+## EXAMPLE USE AS A FUNCTION:
 
 
-## USE AS A FUNCTION:
+### MAP ALL:
+import FileMapper from fileMapper <br />
+your_fileMap = FileMapper(root_dir='yourRootPathHere')
 
-*import FileMapper from fileMapper*
+### FILTER OUT exts:
+import FileMapper from fileMapper <br />
+your_fileMap = FileMapper(root_dir='yourRootPathHere', exts2omit=['.py', '.txt', '.etc'])
 
-your_fileMap = FileMapper(root_dir='yourRootPathHere', exts2omit=['.py', '.txt', '.etc'])*
+
+### FILTER FOR exts:
+import FileMapper from fileMapper <br />
+your_fileMap = FileMapper(root_dir='yourRootPathHere', exts2include=['.py', '.txt', '.etc'])
+
