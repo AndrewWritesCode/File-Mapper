@@ -25,6 +25,7 @@ Maps to a python dictionary all files rooted to a given directory or zip file, w
         "filepath-1": "bar.ext"
         "filepath-2": "\\folder1\\bar.ext"
     }
+}
 </pre>
 
 
