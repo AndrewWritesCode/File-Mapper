@@ -49,9 +49,8 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
             # checks to see if file_map is empty and initializes if it is
             if not file_map:
                 file_info = {
-                    "filename": filename,
                     "number of paths": path_number,
-                    f"filepath-{str(path_number)}": str(path)
+                    f"filepath-{path_number}": str(os.path.join(path, filename))
                 }
                 file_map[filename] = file_info
             else:
@@ -60,12 +59,11 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
                     path_number = file_map[filename]["number of paths"]
                     path_number = path_number + 1
                     file_map[filename]["number of paths"] = path_number
-                    file_map[filename][f"filepath-{str(path_number)}"] = str(path)
+                    file_map[filename][f"filepath-{path_number}"] = str(os.path.join(path, filename))
                 else:
                     file_info = {
-                        "filename": filename,
                         "number of paths": path_number,
-                        f"filepath-{str(path_number)}": str(path)
+                        f"filepath-{path_number}": str(os.path.join(path, filename))
                     }
                     file_map[filename] = file_info
     return file_map
