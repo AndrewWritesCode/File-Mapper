@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from fileMapper import FileMapper
-from fileMapper import ZipMapper
+from fileMapper import SmartMapper
 import json
 import os
 
@@ -149,20 +148,14 @@ class FileMapperFrame(ttk.Frame):
     def generate(self):
         if (self.root_dir.get() != "") and (self.json_path.get() != ""):
             self.status.set("Status: RUNNING")
-            if self.using_zip.get():
-                if self.using_omits:
-                    file_map = ZipMapper(self.root_dir.get(),
-                                         extensions2omit=self.ext_omits_list)
-                else:
-                    file_map = ZipMapper(self.root_dir.get(),
-                                         extensions2include=self.ext_omits_list)
+
+            if self.using_omits:
+                file_map = SmartMapper(self.root_dir.get(),
+                                       extensions2omit=self.ext_omits_list)
             else:
-                if self.using_omits:
-                    file_map = FileMapper(self.root_dir.get(),
-                                          extensions2omit=self.ext_omits_list)
-                else:
-                    file_map = FileMapper(self.root_dir.get(),
-                                          extensions2include=self.ext_omits_list)
+                file_map = SmartMapper(self.root_dir.get(),
+                                       extensions2include=self.ext_omits_list)
+
             json_object = json.dumps(file_map, indent=4)
             with open(self.json_path.get(), "w") as j:
                 j.write(json_object)
