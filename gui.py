@@ -201,7 +201,7 @@ class FileMapperFrame(ttk.Frame):
 def main():
     root = tk.Tk()
     FileMapperFrame(root)
-    # root.iconbitmap("ico path goes here")
+    root.iconbitmap("FileMapper_icon.ico")
     root.mainloop()
 
 
