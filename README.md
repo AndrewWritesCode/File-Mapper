@@ -1,5 +1,5 @@
 # File-Mapper
-Maps all files rooted to a given directory and stores in a python dictionary
+Maps to python dictionary or JSON all files rooted to a given directory or zip file 
 
 ## EXAMPLE USE AS A FUNCTION:
 
