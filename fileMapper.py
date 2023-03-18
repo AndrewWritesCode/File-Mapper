@@ -73,9 +73,7 @@ def ZipMapper(zip_file, extensions2omit=None, extensions2include=None):
     with zipfile.ZipFile(zip_file) as zf:
         with tempfile.TemporaryDirectory() as temp_dir:
             zf.extractall(temp_dir)
-            return FileMapper(temp_dir,
-                              extensions2omit=extensions2omit,
-                              extensions2include=extensions2include)
+            return FileMapper(temp_dir, extensions2omit=extensions2omit, extensions2include=extensions2include)
 
 
 def SmartMapper(path, extensions2omit=None, extensions2include=None):
