@@ -155,13 +155,15 @@ class FileMapperFrame(ttk.Frame):
             else:
                 file_map = SmartMapper(self.root_dir.get(),
                                        extensions2include=self.ext_omits_list)
-
-            json_object = json.dumps(file_map, indent=4)
-            with open(self.json_path.get(), "w") as j:
-                j.write(json_object)
-            self.has_generated = True
-            self.status.set("Status: DONE!")
-            self.go_to_file_text.set(f'Open {os.path.basename(self.json_path.get())}')
+            if file_map:
+                json_object = json.dumps(file_map, indent=4)
+                with open(self.json_path.get(), "w") as j:
+                    j.write(json_object)
+                self.has_generated = True
+                self.status.set("Status: DONE!")
+                self.go_to_file_text.set(f'Open {os.path.basename(self.json_path.get())}')
+            else:
+                self.status.set("STATUS: Can\'t Access Root Dir!")
         elif self.root_dir.get() == "":
             self.status.set("Status: Root Dir Undefined!")
         else:

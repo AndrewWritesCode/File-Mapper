@@ -1,7 +1,7 @@
 import os
 import tempfile
-from sys import exit
 import zipfile
+from warnings import warn
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -11,9 +11,8 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
         extensions2include = []
     file_map = {}
     if not os.path.exists(root_dir):
-        print('Unable to change to root directory')
-        print('Terminating Session...')
-        exit()
+        warn("FileMap not created: Unable to access target root directory")
+        return
 
     l_root = len(root_dir)
     for directory, sub_directories, files in os.walk(root_dir):
@@ -70,10 +69,13 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
 
 
 def ZipMapper(zip_file, extensions2omit=None, extensions2include=None):
-    with zipfile.ZipFile(zip_file) as zf:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            zf.extractall(temp_dir)
-            return FileMapper(temp_dir, extensions2omit=extensions2omit, extensions2include=extensions2include)
+    if os.path.exists(zip_file):
+        with zipfile.ZipFile(zip_file) as zf:
+            with tempfile.TemporaryDirectory() as temp_dir:
+                zf.extractall(temp_dir)
+                return FileMapper(temp_dir, extensions2omit=extensions2omit, extensions2include=extensions2include)
+    else:
+        return
 
 
 def SmartMapper(path, extensions2omit=None, extensions2include=None):
