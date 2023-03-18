@@ -2,11 +2,13 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from fileMapper import FileMapper
+from fileMapper import ZipMapper
 import json
 import os
 
 try:
     from ctypes import windll
+
     windll.shcore.SetProcessDpiAwareness(1)  # change to a 2 for multiple monitor resolutions (will cause scaling)
 except ImportError:
     pass
@@ -19,6 +21,14 @@ class FileMapperFrame(ttk.Frame):
 
         self.parent = parent
         self.large_btn_width = 50
+
+        self.title = tk.StringVar()
+        self.title.set("FileMapper")
+        self.using_zip = tk.BooleanVar()
+        self.using_zip.set(False)
+
+        self.target_prompt = tk.StringVar()
+        self.target_prompt.set("Define Directory to FileMap:")
 
         self.root_dir = tk.StringVar()
         self.json_path = tk.StringVar()
@@ -49,11 +59,13 @@ class FileMapperFrame(ttk.Frame):
         self.init_output_frame()
 
     def init_title_frame(self):
-        title = "FileMapper"
+        window_name = "FileMapper"
         frame = ttk.Frame(self)
         frame.grid(column=0, row=0, padx=2, pady=2)
-        ttk.Label(frame, text=title, font=("Arial", 28)).grid(column=0, row=0)
-        self.winfo_toplevel().title(title)
+        ttk.Label(frame, textvariable=self.title, font=("Arial", 28)).grid(column=0, row=0)
+        ttk.Checkbutton(frame, text="Map a Zip", variable=self.using_zip,
+                        onvalue=True, offvalue=False, command=self.title_toggle).grid(column=2, row=0, sticky=tk.E)
+        self.winfo_toplevel().title(window_name)
 
     def init_main_frame(self):
         frame = ttk.Frame(self)
@@ -61,7 +73,7 @@ class FileMapperFrame(ttk.Frame):
 
         entry_width = 65
 
-        ttk.Label(frame, text="Define Directory to FileMap:").grid(column=0, row=0, sticky=tk.W)
+        ttk.Label(frame, textvariable=self.target_prompt).grid(column=0, row=0, sticky=tk.W)
         ttk.Entry(frame, width=entry_width, textvariable=self.root_dir).grid(column=0, row=1, sticky=tk.W)
         ttk.Button(frame, text="Browse", command=self.get_root_dir).grid(column=1, row=1)
 
@@ -69,7 +81,7 @@ class FileMapperFrame(ttk.Frame):
         ttk.Entry(frame, width=entry_width, textvariable=self.json_path).grid(column=0, row=4, sticky=tk.W)
         ttk.Button(frame, text="Save As", command=self.get_json_path).grid(column=1, row=4)
 
-        ttk.Label(frame, text="Comma Separated List of Extensions to Filter (such as .txt, .py, .etc):")\
+        ttk.Label(frame, text="Comma Separated List of Extensions to Filter (such as .txt, .py, .etc):") \
             .grid(column=0, row=6, sticky=tk.W)
         ttk.Entry(frame, width=entry_width, textvariable=self.ext_omits).grid(column=0, row=7, sticky=tk.W)
         ttk.Button(frame, text="Submit", command=self.parse_omits).grid(column=1, row=7)
@@ -82,6 +94,14 @@ class FileMapperFrame(ttk.Frame):
             .grid(column=0, row=0, sticky=tk.W)
         ttk.Label(frame, textvariable=self.ext_omits_submitted, width=40).grid(column=1, row=0, sticky=tk.W)
 
+    def title_toggle(self):
+        if self.using_zip.get():
+            self.title.set("ZipMapper")
+            self.target_prompt.set("Define a Zipfile to FileMap:")
+        else:
+            self.title.set("FileMapper")
+            self.target_prompt.set("Define Directory to FileMap:")
+
     def omit_filter_toggle(self):
         if self.using_omits:
             self.using_omits_toggle.set("[TOGGLE] Including the following extensions:")
@@ -91,8 +111,12 @@ class FileMapperFrame(ttk.Frame):
             self.using_omits = True
 
     def get_root_dir(self):
-        root_dir = filedialog.askdirectory()
-        self.root_dir.set(root_dir)
+        if self.using_zip.get():
+            root_dir = filedialog.askopenfilename(defaultextension=".*", filetypes=[("Zip", "*.zip")])
+            self.root_dir.set(root_dir)
+        else:
+            root_dir = filedialog.askdirectory()
+            self.root_dir.set(root_dir)
 
     def get_json_path(self):
         json_path = filedialog.asksaveasfilename(defaultextension=".*", filetypes=[("JSON", "*.json")])
@@ -125,12 +149,20 @@ class FileMapperFrame(ttk.Frame):
     def generate(self):
         if (self.root_dir.get() != "") and (self.json_path.get() != ""):
             self.status.set("Status: RUNNING")
-            if self.using_omits:
-                file_map = FileMapper(root_dir=self.root_dir.get(),
-                                      extensions2omit=self.ext_omits_list)
+            if self.using_zip.get():
+                if self.using_omits:
+                    file_map = ZipMapper(zip_file=self.root_dir.get(),
+                                         extensions2omit=self.ext_omits_list)
+                else:
+                    file_map = ZipMapper(zip_file=self.root_dir.get(),
+                                         extensions2include=self.ext_omits_list)
             else:
-                file_map = FileMapper(root_dir=self.root_dir.get(),
-                                      extensions2include=self.ext_omits_list)
+                if self.using_omits:
+                    file_map = FileMapper(root_dir=self.root_dir.get(),
+                                          extensions2omit=self.ext_omits_list)
+                else:
+                    file_map = FileMapper(root_dir=self.root_dir.get(),
+                                          extensions2include=self.ext_omits_list)
             json_object = json.dumps(file_map, indent=4)
             with open(self.json_path.get(), "w") as j:
                 j.write(json_object)
