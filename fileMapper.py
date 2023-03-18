@@ -1,11 +1,7 @@
 import os
+import tempfile
 from sys import exit
 import zipfile
-
-
-def Unzip(src, dst):
-    with zipfile.ZipFile(src, 'r') as z:
-        z.extractall(dst)
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -73,3 +69,10 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
                     }
                     file_map[filename] = file_info
     return file_map
+
+
+def ZipMapper(zip_file, extensions2omit=None, extensions2include=None):
+    with zipfile.ZipFile(zip_file) as zf:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            zf.extractall(temp_dir)
+            return FileMapper(temp_dir, extensions2omit=extensions2omit, extensions2include=extensions2include)
