@@ -17,7 +17,7 @@ The following maps a directory with 2 files in the root, and another file in a f
         "number of paths": 2,
         "filepath-1": ""
         "filepath-2": "\\folder1"
-    },
+    }
 </pre>
 
 
