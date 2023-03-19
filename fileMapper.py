@@ -49,20 +49,20 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
             if not file_map:
                 file_info = {
                     "number of paths": path_number,
-                    f"filepath-{path_number}": str(os.path.join(path, filename))
+                    "filepaths": [str(os.path.join(path, filename))]
                 }
                 file_map[filename] = file_info
             else:
                 # either updates file_map for each file of creates new file_map entry
                 if filename in file_map:
                     path_number = file_map[filename]["number of paths"]
-                    path_number = path_number + 1
+                    path_number += 1
                     file_map[filename]["number of paths"] = path_number
-                    file_map[filename][f"filepath-{path_number}"] = str(os.path.join(path, filename))
+                    file_map[filename]["filepaths"].append(str(os.path.join(path, filename)))
                 else:
                     file_info = {
                         "number of paths": path_number,
-                        f"filepath-{path_number}": str(os.path.join(path, filename))
+                        "filepaths": [str(os.path.join(path, filename))]
                     }
                     file_map[filename] = file_info
     return file_map
@@ -78,7 +78,7 @@ def ZipMapper(zip_file, extensions2omit=None, extensions2include=None):
         return
 
 
-def SmartMapper(path, extensions2omit=None, extensions2include=None):
+def SmartMapper(path, extensions2omit=None, extensions2include=None, use_lists=False):
     if os.path.splitext(path)[1] == ".zip":
         return ZipMapper(path, extensions2omit=extensions2omit, extensions2include=extensions2include)
     else:

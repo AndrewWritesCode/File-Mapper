@@ -17,13 +17,17 @@ Maps to a python dictionary all files rooted to a given directory or zip file, w
 {
     "foo.ext": {
         "number of paths": 1,
-        "filepath-1": "foo.ext"
+        "filepaths": [
+            "foo.ext"
+        ]
     },
 
     "bar.ext": {
         "number of paths": 2,
-        "filepath-1": "bar.ext"
-        "filepath-2": "\\folder1\\bar.ext"
+        "filepaths": [
+            "bar.ext"
+            "\\folder1\\bar.ext"
+        ]
     }
 }
 </pre>
