@@ -78,7 +78,7 @@ def ZipMapper(zip_file, extensions2omit=None, extensions2include=None):
         return
 
 
-def SmartMapper(path, extensions2omit=None, extensions2include=None, use_lists=False):
+def SmartMapper(path, extensions2omit=None, extensions2include=None):
     if os.path.splitext(path)[1] == ".zip":
         return ZipMapper(path, extensions2omit=extensions2omit, extensions2include=extensions2include)
     else:
