@@ -1,7 +1,6 @@
 import os
 import tempfile
 import zipfile
-from warnings import warn
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -11,8 +10,7 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
         extensions2include = []
     file_map = {}
     if not os.path.exists(root_dir):
-        warn(f"FileMap not created. Unable to access target root directory: {root_dir}")
-        return
+        raise IsADirectoryError(f'Target path: {root_dir} can\'t be accessed')
 
     l_root = len(root_dir)
     for directory, sub_directories, files in os.walk(root_dir):
@@ -83,3 +81,23 @@ def SmartMapper(path, extensions2omit=None, extensions2include=None):
         return ZipMapper(path, extensions2omit=extensions2omit, extensions2include=extensions2include)
     else:
         return FileMapper(path, extensions2omit=extensions2omit, extensions2include=extensions2include)
+
+
+class FileMap:
+    def __init__(self, target_path, extensions2omit=None, extensions2include=None):
+        self.__root = target_path
+        self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
+
+    @property
+    def root(self):
+        return self.__root
+
+    @property
+    def map(self):
+        return self.__map
+
+    def __iter__(self):
+        return iter(self.map)
+
+    def __str__(self):
+        return f'FileMap Object {self.__name__} maps {self.root}'
