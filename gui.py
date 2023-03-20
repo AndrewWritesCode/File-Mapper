@@ -7,7 +7,6 @@ import os
 
 try:
     from ctypes import windll
-
     windll.shcore.SetProcessDpiAwareness(1)  # change to a 2 for multiple monitor resolutions (will cause scaling)
 except ImportError:
     pass
@@ -182,14 +181,14 @@ class FileMapperFrame(ttk.Frame):
         if self.has_generated:
             try:
                 os.startfile(os.path.dirname(self.json_path.get()))
-            except OSError:
+            except IsADirectoryError:
                 self.status.set("Status: Output Dir Not Found!")
 
     def go_to_file(self):
         if self.has_generated:
             try:
                 os.startfile(self.json_path.get())
-            except OSError:
+            except IsADirectoryError:
                 self.status.set("Status: Output File Not Found!")
 
 
