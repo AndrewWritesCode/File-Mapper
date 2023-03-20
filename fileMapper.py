@@ -11,7 +11,7 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
         extensions2include = []
     file_map = {}
     if not os.path.exists(root_dir):
-        warn("FileMap not created: Unable to access target root directory")
+        warn(f"FileMap not created. Unable to access target root directory: {root_dir}")
         return
 
     l_root = len(root_dir)
