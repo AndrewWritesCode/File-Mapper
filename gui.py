@@ -4,6 +4,8 @@ from tkinter import filedialog
 from fileMapper import SmartMapper
 import json
 import os
+import base64
+import icon
 
 try:
     from ctypes import windll
@@ -197,6 +199,9 @@ def main():
     FileMapperFrame(root)
     if os.path.exists("FileMapper_icon.ico"):
         root.iconbitmap("FileMapper_icon.ico")
+    else:
+        icon_data = base64.b64decode(icon.icon_base_64)
+        root.iconbitmap(icon_data)
     root.mainloop()
 
 
