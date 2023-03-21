@@ -195,7 +195,8 @@ class FileMapperFrame(ttk.Frame):
 def main():
     root = tk.Tk()
     FileMapperFrame(root)
-    root.iconbitmap("FileMapper_icon.ico")
+    if os.path.exists("FileMapper_icon.ico"):
+        root.iconbitmap("FileMapper_icon.ico")
     root.mainloop()
 
 
