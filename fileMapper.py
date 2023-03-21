@@ -1,6 +1,7 @@
 import os
 import tempfile
 import zipfile
+import json
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -83,6 +84,14 @@ def SmartMapper(path, extensions2omit=None, extensions2include=None):
         return FileMapper(path, extensions2omit=extensions2omit, extensions2include=extensions2include)
 
 
+def FileMap2json(file_map, json_path):
+    if file_map:
+        if os.path.exists(json_path):
+            json_object = json.dumps(file_map, indent=4)
+            with open(json_path, "w") as j:
+                j.write(json_object)
+
+
 class FileMap:
     def __init__(self, target_path, extensions2omit=None, extensions2include=None):
         self.__root = target_path
@@ -96,8 +105,23 @@ class FileMap:
     def map(self):
         return self.__map
 
+    def exists(self):
+        return bool(self.map)
+
     def __iter__(self):
         return iter(self.map)
 
     def __str__(self):
         return f'FileMap Object {self.__name__} maps {self.root}'
+
+    def export_map_to_json(self, json_path):
+        if self.map:
+            if os.path.exists(json_path):
+                json_object = json.dumps(self.map, indent=4)
+                with open(json_path, "w") as j:
+                    j.write(json_object)
+            else:
+                print(f'Exporting FileMap Object {self.__name__} to JSON failed: JSON has an invalid output path:\n'
+                      f'Invalid path: {json_path}')
+        else:
+            print(f'Exporting FileMap Object {self.__name__} to JSON failed: has an empty map')

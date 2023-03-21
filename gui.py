@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-from fileMapper import SmartMapper
-import json
+from fileMapper import FileMap
 import os
 
 
@@ -150,15 +149,17 @@ class FileMapperFrame(ttk.Frame):
             self.status.set("Status: RUNNING")
 
             if self.using_omits:
-                file_map = SmartMapper(self.root_dir.get(),
-                                       extensions2omit=self.ext_omits_list)
+                #file_map = SmartMapper(self.root_dir.get(),
+                #                       extensions2omit=self.ext_omits_list)
+                file_map = FileMap(self.root_dir.get(),
+                                   extensions2omit=self.ext_omits_list)
             else:
-                file_map = SmartMapper(self.root_dir.get(),
-                                       extensions2include=self.ext_omits_list)
-            if file_map:
-                json_object = json.dumps(file_map, indent=4)
-                with open(self.json_path.get(), "w") as j:
-                    j.write(json_object)
+                #file_map = SmartMapper(self.root_dir.get(),
+                #                       extensions2include=self.ext_omits_list)
+                file_map = FileMap(self.root_dir.get(),
+                                   extensions2include=self.ext_omits_list)
+            if file_map.exists():
+                file_map.export_map_to_json(self.json_path.get())
                 self.has_generated = True
                 self.status.set("Status: DONE!")
                 self.go_to_file_text.set(f'Open {os.path.basename(self.json_path.get())}')
