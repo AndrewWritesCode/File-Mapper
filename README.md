@@ -77,32 +77,32 @@ iterate over the file map keys, and export the file map to a JSON file.
 
 
 #### MAP ALL:
-<code>
-from fileMapper import FileMapper <br />
+<pre>
+from fileMapper import FileMapper
 your_fileMap = FileMapper(root_dir='yourRootPathHere')
-</code>
+</pre>
 
 #### FILTER OUT exts:
-<code>
-from fileMapper import FileMapper <br />
+<pre>
+from fileMapper import FileMapper
 your_fileMap = FileMapper(root_dir='yourRootPathHere', exts2omit=['.py', '.txt', '.etc'])
-</code>
+</pre>
 
 ### FILTER FOR exts:
-<code>
-from fileMapper import FileMapper <br />
+<pre>
+from fileMapper import FileMapper
 your_fileMap = FileMapper(root_dir='yourRootPathHere', exts2include=['.py', '.txt', '.etc'])
-</code>
+</pre>
 
 #### MAP a Zip file (can also use filters):
-<code>
-from fileMapper import ZipMapper <br />
+<pre>
+from fileMapper import ZipMapper
 your_fileMap = ZipMapper(zip_file='yourZipfilePathHere')
-</code>
+</pre>
 
 #### MAP a Zip file or a path (can also use filters):
-<code>
-from fileMapper import SmartMapper <br />
+<pre>
+from fileMapper import SmartMapper
 your_fileMap = ZipMapper(zip_file='yourZipfilePathHere')
-</code>
+</pre>
 
