@@ -99,11 +99,23 @@ def GetMapSize(file_map):
     return size
 
 
+# Can create a dummy FileMap by passing a tuple in the form (root, file_map dict)
 class FileMap:
-    def __init__(self, target_path, extensions2omit=None, extensions2include=None):
-        self.__root = target_path
-        self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
-        self.__size = GetMapSize(self.map)
+    def __init__(self, target_path, extensions2omit=None, extensions2include=None, dummy=(None, None)):
+        if not dummy[1]:
+            self.__root = target_path
+            self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
+            self.__size = GetMapSize(self.map)
+            self.__is_dummy = False
+        elif isinstance(dummy[1], dict):
+            self.__root = dummy[0]
+            self.__map = dummy[1]
+            self.__size = GetMapSize(self.map)
+            self.__is_dummy = True
+
+    @property
+    def is_dummy(self):
+        return self.__is_dummy
 
     @property
     def root(self):
@@ -115,7 +127,20 @@ class FileMap:
 
     @property  # returns the number of filepaths in the file_map
     def size(self):
-        return GetMapSize(self.map)
+        if not self.is_dummy:
+            return GetMapSize(self.map)
+        else:
+            try:
+                return GetMapSize(self.map)
+            except KeyError:
+                try:
+                    size = 0
+                    for file in self.map:
+                        for path in self.map[file]["filepaths"]:
+                            size += 1
+                    return size
+                except KeyError:
+                    print(f'Dummy FileMap {self.__name__} improperly configured to calculate map size')
 
     def exists(self):
         return bool(self.map)
@@ -160,3 +185,17 @@ class FileMap:
         if self.map and other.map:
             return (self.number_of_filepath_matches(other) / self.size,
                     other.number_of_filepath_matches(self) / other.size)
+
+    def generate_dif_map(self, other):
+        if not isinstance(other, FileMap):
+            return
+        if self.map and other.map:
+            dif_map = self.map.copy()
+            for file in self.map:
+                if file not in other.map:
+                    del dif_map[file]
+                else:
+                    for path in self.map[file]["filepaths"]:
+                        if path not in other.map[file]["filepaths"]:
+                            dif_map[file][path].pop()
+            return dif_map
