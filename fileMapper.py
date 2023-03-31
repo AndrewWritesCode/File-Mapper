@@ -232,7 +232,7 @@ class FileMapProjection:
         self.end_map = end_FileMap.map.copy()
         self.proj_map = {}
         for file in self.end_map:
-            for path in self.end_map[file]:
+            for path in self.end_map[file]["filepaths"]:
                 self.proj_map[path] = None
 
     def find_exact_matches(self):
