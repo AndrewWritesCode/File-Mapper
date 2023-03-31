@@ -137,3 +137,22 @@ class FileMap:
                       f'Invalid path: {json_path}')
         else:
             print(f'Exporting FileMap Object {self.__name__} to JSON failed: has an empty map')
+
+    # Counts the number of filepaths mapped in the file_map
+    def number_of_filepath_matches(self, other):
+        if self.map and other.map:
+            match_count = 0
+            for file in self.map:
+                if file not in other.map:
+                    continue
+                else:
+                    for path in self.map[file]["filepaths"]:
+                        if path in other.map[file]["filepaths"]:
+                            match_count += 1
+            return match_count
+
+    # This returns a tuple of how many filepaths in self are also in other, and vice versa
+    def get_similarity_proportions(self, other):
+        if self.map and other.map:
+            return (self.number_of_filepath_matches(other) / self.size,
+                    other.number_of_filepath_matches(self) / other.size)
