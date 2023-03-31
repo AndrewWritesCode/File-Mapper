@@ -162,6 +162,7 @@ class FileMap:
                     self.__map[file]["filepaths"].remove(path)
                 if self.map[file]["number of paths"] == 0:
                     del self.__map[file]
+                    continue
         self.__is_dummy = True
         return self.map
 
