@@ -199,17 +199,11 @@ class FileMap:
             return (self.number_of_filepath_matches(other) / self.size,
                     other.number_of_filepath_matches(self) / other.size)
 
+    # generates a map of all missing filepaths from other FileMap Object
     def generate_dif_map(self, other):
         if not isinstance(other, FileMap):
             return
         if self.map and other.map:
-            dif_map = self.__map.copy()
-            for file in self.map:
-                if file not in other.map:
-                    del dif_map[file]
-                else:
-                    for path in self.map[file]["filepaths"]:
-                        if path not in other.map[file]["filepaths"]:
-                            dif_map[file][path].pop()
-                            dif_map[file]["number of paths"] -= 1
-            return FileMap(self.root, dummy=dif_map)
+            dif_map = FileMap(self.root, dummy=self.__map.copy())
+            dif_map = dif_map - other
+            return dif_map
