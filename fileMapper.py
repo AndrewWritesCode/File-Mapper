@@ -92,10 +92,18 @@ def FileMap2json(file_map, json_path):
                 j.write(json_object)
 
 
+def GetMapSize(file_map):
+    size = 0
+    for file in file_map:
+        size += file_map[file]["number of paths"]
+    return size
+
+
 class FileMap:
     def __init__(self, target_path, extensions2omit=None, extensions2include=None):
         self.__root = target_path
         self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
+        self.__size = GetMapSize(self.map)
 
     @property
     def root(self):
@@ -104,6 +112,10 @@ class FileMap:
     @property
     def map(self):
         return self.__map
+
+    @property  # returns the number of filepaths in the file_map
+    def size(self):
+        return GetMapSize(self.map)
 
     def exists(self):
         return bool(self.map)
