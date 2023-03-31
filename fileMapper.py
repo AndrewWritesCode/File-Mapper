@@ -87,7 +87,7 @@ def SmartMapper(path, extensions2omit=None, extensions2include=None):
 
 def FileMap2json(file_map, json_path):
     if file_map:
-        if os.path.exists(json_path):
+        if os.path.exists(os.path.split(json_path)[0]):
             json_object = json.dumps(file_map, indent=4)
             with open(json_path, "w") as j:
                 j.write(json_object)
@@ -180,7 +180,7 @@ class FileMap:
 
     def export_map_to_json(self, json_path):
         if self.map:
-            if os.path.exists(json_path):
+            if os.path.exists(os.path.split(json_path)[0]):
                 json_object = json.dumps(self.map, indent=4)
                 with open(json_path, "w") as j:
                     j.write(json_object)
