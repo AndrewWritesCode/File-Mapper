@@ -165,6 +165,17 @@ class FileMap:
         self.__is_dummy = True
         return self.map
 
+    def modify_filepath(self, filepath, new_path):
+        new_path = os.path.split(new_path)[0]
+        filename = os.path.split(filepath)[1]
+        new_path = os.path.join(new_path, filename)
+        if filename in self.map:
+            self.__is_dummy = True
+            self.__map[filename]["filepaths"].remove(filepath)
+            self.__map[filename]["filepaths"].append(new_path)
+        else:
+            return False
+
     def export_map_to_json(self, json_path):
         if self.map:
             if os.path.exists(json_path):
