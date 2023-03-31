@@ -249,6 +249,8 @@ class FileMapProjection:
                             del self.start_map[os.path.split(path)[1]]
 
     def find_root_swaps(self, start_root, end_root):
+        start_root = os.path.normpath(start_root)
+        end_root = os.path.normpath(end_root)
         for path in self.proj_map:
             if os.path.split(path)[1] not in self.start_map:
                 continue
@@ -266,7 +268,7 @@ class FileMapProjection:
         if end_path not in self.proj_map:
             return False
         else:
-            self.proj_map[end_path] = start_path
+            self.proj_map[end_path] = os.path.normpath(start_path)
             return True
 
     # TODO: underscore rearrangement (decorator), match similar paths
