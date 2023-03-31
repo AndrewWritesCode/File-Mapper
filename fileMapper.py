@@ -104,7 +104,8 @@ class FileMap:
     def __init__(self, target_path, extensions2omit=None, extensions2include=None, dummy=None):
         if not dummy:
             self.__root = target_path
-            self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
+            self.__map = SmartMapper(target_path, extensions2omit=extensions2omit,
+                                     extensions2include=extensions2include)
             self.__size = GetMapSize(self.map)
             self.__is_dummy = False
         elif isinstance(dummy, dict):
