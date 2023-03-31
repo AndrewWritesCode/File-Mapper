@@ -140,6 +140,8 @@ class FileMap:
 
     # Counts the number of filepaths mapped in the file_map
     def number_of_filepath_matches(self, other):
+        if not isinstance(other, FileMap):
+            return
         if self.map and other.map:
             match_count = 0
             for file in self.map:
@@ -153,6 +155,8 @@ class FileMap:
 
     # This returns a tuple of how many filepaths in self are also in other, and vice versa
     def get_similarity_proportions(self, other):
+        if not isinstance(other, FileMap):
+            return
         if self.map and other.map:
             return (self.number_of_filepath_matches(other) / self.size,
                     other.number_of_filepath_matches(self) / other.size)
