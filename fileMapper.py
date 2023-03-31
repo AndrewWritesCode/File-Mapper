@@ -110,7 +110,7 @@ class FileMap:
         elif isinstance(dummy[1], dict):
             self.__root = dummy[0]
             self.__map = dummy[1]
-            self.__size = GetMapSize(self.map)
+            self.__size = None
             self.__is_dummy = True
 
     @property
@@ -136,11 +136,13 @@ class FileMap:
                 try:
                     size = 0
                     for file in self.map:
+                        self.__map[file]["number of paths"] = 0
                         for path in self.map[file]["filepaths"]:
                             size += 1
+                            self.__map[file]["number of paths"] += 1
                     return size
                 except KeyError:
-                    print(f'Dummy FileMap {self.__name__} improperly configured to calculate map size')
+                    print(f'Dummy FileMap {self.__name__} improperly configured')
 
     def exists(self):
         return bool(self.map)
@@ -198,4 +200,5 @@ class FileMap:
                     for path in self.map[file]["filepaths"]:
                         if path not in other.map[file]["filepaths"]:
                             dif_map[file][path].pop()
+                            dif_map[file]["number of paths"] -= 1
             return dif_map
