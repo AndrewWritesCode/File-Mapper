@@ -2,6 +2,7 @@ import os
 import tempfile
 import zipfile
 import json
+import re
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -166,14 +167,14 @@ class FileMap:
         self.__is_dummy = True
         return self.map
 
-    def modify_filepath(self, filepath, new_path):
-        new_path = os.path.split(new_path)[0]
+    def modify_filepath_root(self, filepath, new_root):
         filename = os.path.split(filepath)[1]
-        new_path = os.path.join(new_path, filename)
+        new_path = os.path.join(new_root, filename)
         if filename in self.map:
             self.__is_dummy = True
             self.__map[filename]["filepaths"].remove(filepath)
             self.__map[filename]["filepaths"].append(new_path)
+            return True
         else:
             return False
 
@@ -220,3 +221,71 @@ class FileMap:
             dif_map = FileMap(self.root, dummy=self.__map.copy())
             dif_map = dif_map - other
             return dif_map
+
+
+# This class is used to reform a start FileMap to the structure of an end FileMap
+# The proj_map holds the end FileMap filepaths as keys, and the corresponding start FileMaps as the value of the keys
+# This structure represents the keys being desired file locations, and values of keys as the filepath to locate the file
+class FileMapProjection:
+    def __init__(self, start_FileMap, end_FileMap):
+        self.start_map = start_FileMap.map.copy()
+        self.end_map = end_FileMap.map.copy()
+        self.proj_map = {}
+        for file in self.end_map:
+            for path in self.end_map[file]:
+                self.proj_map[path] = None
+
+    def find_exact_matches(self):
+        for path in self.proj_map:
+            if os.path.split(path)[1] not in self.start_map:
+                continue
+            else:
+                for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
+                    if filepath == path:
+                        self.proj_map[path] = filepath
+                        self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
+                        self.start_map[os.path.split(path)[1]]["number of paths"] -= 1
+                        if self.start_map[os.path.split(path)[1]]["number of paths"] == 0:
+                            del self.start_map[os.path.split(path)[1]]
+
+    def find_root_swaps(self, start_root, end_root):
+        for path in self.proj_map:
+            if os.path.split(path)[1] not in self.start_map:
+                continue
+            else:
+                for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
+                    new_filepath = re.sub(start_root, end_root, filepath)
+                    if new_filepath == path:
+                        self.proj_map[path] = filepath
+                        self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
+                        self.start_map[os.path.split(path)[1]]["number of paths"] -= 1
+                        if self.start_map[os.path.split(path)[1]]["number of paths"] == 0:
+                            del self.start_map[os.path.split(path)[1]]
+
+    def manual_match(self, start_path, end_path):
+        if end_path not in self.proj_map:
+            return False
+        else:
+            self.proj_map[end_path] = start_path
+            return True
+
+    # TODO: underscore rearrangement (decorator), match similar paths
+
+    def projection_completion(self):
+        match_count = 0
+        for path in self.proj_map:
+            if self.proj_map[path]:  # counts a match so long as path isn't None
+                match_count += 1
+        return match_count / len(self.proj_map)
+
+    def export_projection_to_json(self, json_path):
+        if self.proj_map:
+            if os.path.exists(json_path):
+                json_object = json.dumps(self.proj_map, indent=4)
+                with open(json_path, "w") as j:
+                    j.write(json_object)
+            else:
+                print(f'Exporting FileMap Projection {self.__name__} to JSON failed: JSON has an invalid output path:\n'
+                      f'Invalid path: {json_path}')
+        else:
+            print(f'Exporting FileMap Projection {self.__name__} to JSON failed: has an empty map')
