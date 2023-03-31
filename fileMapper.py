@@ -101,15 +101,15 @@ def GetMapSize(file_map):
 
 # Can create a dummy FileMap by passing a tuple in the form (root, file_map dict)
 class FileMap:
-    def __init__(self, target_path, extensions2omit=None, extensions2include=None, dummy=(None, None)):
-        if not dummy[1]:
+    def __init__(self, target_path, extensions2omit=None, extensions2include=None, dummy=None):
+        if not dummy:
             self.__root = target_path
             self.__map = SmartMapper(target_path, extensions2omit=extensions2omit, extensions2include=extensions2include)
             self.__size = GetMapSize(self.map)
             self.__is_dummy = False
-        elif isinstance(dummy[1], dict):
-            self.__root = dummy[0]
-            self.__map = dummy[1]
+        elif isinstance(dummy, dict):
+            self.__root = target_path
+            self.__map = dummy
             self.__size = None
             self.__is_dummy = True
 
@@ -153,6 +153,17 @@ class FileMap:
     def __str__(self):
         return f'FileMap Object {self.__name__} maps {self.root}'
 
+    def __sub__(self, other):
+        for file in other.map:
+            for path in other.map[file]["filepaths"]:
+                if path in self.map[file]["filepaths"]:
+                    self.__map[file]["number of paths"] -= 1
+                    self.__map[file]["filepaths"].remove(path)
+                if self.map[file]["number of paths"] == 0:
+                    del self.__map[file]
+        self.__is_dummy = True
+        return self.map
+
     def export_map_to_json(self, json_path):
         if self.map:
             if os.path.exists(json_path):
@@ -192,7 +203,7 @@ class FileMap:
         if not isinstance(other, FileMap):
             return
         if self.map and other.map:
-            dif_map = self.map.copy()
+            dif_map = self.__map.copy()
             for file in self.map:
                 if file not in other.map:
                     del dif_map[file]
@@ -201,4 +212,4 @@ class FileMap:
                         if path not in other.map[file]["filepaths"]:
                             dif_map[file][path].pop()
                             dif_map[file]["number of paths"] -= 1
-            return dif_map
+            return FileMap(self.root, dummy=dif_map)
