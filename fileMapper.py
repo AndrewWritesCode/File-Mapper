@@ -2,7 +2,7 @@ import os
 import tempfile
 import zipfile
 import json
-import re
+from os_fileMapper import substitute_path
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -256,7 +256,7 @@ class FileMapProjection:
                 continue
             else:
                 for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
-                    new_filepath = re.sub(start_root, end_root, filepath)
+                    new_filepath = substitute_path(start_root, end_root, filepath)  # TODO: Fix this using os.path.split
                     if new_filepath == path:
                         self.proj_map[path] = filepath
                         self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
