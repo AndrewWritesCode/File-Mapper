@@ -43,3 +43,16 @@ def substitute_path(orig_path, sub_path, filepath):
                     break
                 j += 1
     return filepath
+
+
+def substitute_filename_in_path(orig_filename, sub_filename, filepath, keep_ext=True):
+    name = os.path.split(filepath)
+    if name[1] != orig_filename:
+        return filepath
+    else:
+        if not keep_ext:
+            return os.path.join(name[0], sub_filename)
+        else:
+            ext = os.path.splitext(name[1])[1]
+            name_only = os.path.splitext(sub_filename)[0]
+            return os.path.join(name[0], f'{name_only}{ext}')
