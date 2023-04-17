@@ -2,7 +2,8 @@ import os
 import tempfile
 import zipfile
 import json
-from os_fileMapper import substitute_path
+import csv
+from os_fileMapper import substitute_path, generate_permutations, abs2local_path_convert
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -49,7 +50,7 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
             if not file_map:
                 file_info = {
                     "number of paths": path_number,
-                    "filepaths": [str(os.path.join(path, filename))]
+                    "filepaths": abs2local_path_convert([str(os.path.join(path, filename))])
                 }
                 file_map[filename] = file_info
             else:
@@ -58,11 +59,11 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
                     path_number = file_map[filename]["number of paths"]
                     path_number += 1
                     file_map[filename]["number of paths"] = path_number
-                    file_map[filename]["filepaths"].append(str(os.path.join(path, filename)))
+                    file_map[filename]["filepaths"].append(abs2local_path_convert(str(os.path.join(path, filename))))
                 else:
                     file_info = {
                         "number of paths": path_number,
-                        "filepaths": [str(os.path.join(path, filename))]
+                        "filepaths": [abs2local_path_convert(str(os.path.join(path, filename)))]
                     }
                     file_map[filename] = file_info
     return file_map
@@ -240,13 +241,13 @@ class FileMapProjection:
             if os.path.split(path)[1] not in self.start_map:
                 continue
             else:
-                for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
-                    if filepath == path:
+                for filepath in self.start_map.copy()[os.path.split(path)[1]]["filepaths"]:
+                    if (filepath == path) and (self.proj_map[path] is None):
                         self.proj_map[path] = filepath
                         self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
                         self.start_map[os.path.split(path)[1]]["number of paths"] -= 1
                         if self.start_map[os.path.split(path)[1]]["number of paths"] == 0:
-                            del self.start_map[os.path.split(path)[1]]
+                            self.start_map.pop(os.path.split(path)[1])
 
     def find_root_swaps(self, start_root, end_root):
         start_root = os.path.normpath(start_root)
@@ -257,37 +258,100 @@ class FileMapProjection:
             else:
                 for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
                     new_filepath = substitute_path(start_root, end_root, filepath)  # TODO: Fix this using os.path.split
-                    if new_filepath == path:
+                    if (new_filepath == path) and (self.proj_map[path] is None):
                         self.proj_map[path] = filepath
                         self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
                         self.start_map[os.path.split(path)[1]]["number of paths"] -= 1
                         if self.start_map[os.path.split(path)[1]]["number of paths"] == 0:
-                            del self.start_map[os.path.split(path)[1]]
+                            self.start_map.pop(os.path.split(path)[1])
+                        break
+
+    def find_permutation_matches(self, separator='_', start_root=None, end_root=None, use_drops=False, seg_limit=2,
+                                 manual_adds=None, manual_removes=None):
+        # for path in self.proj_map:
+        for filename in self.start_map.copy():
+            for path in self.start_map[filename]["filepaths"]:
+                possible_filepaths = generate_permutations(path, separator=separator, use_drops=use_drops,
+                                                           seg_limit=seg_limit, manual_adds=manual_adds,
+                                                           manual_removes=manual_removes)
+                if start_root and end_root:
+                    for i in range(len(possible_filepaths)):
+                        start_root = os.path.normpath(start_root)
+                        end_root = os.path.normpath(end_root)
+                        possible_filepaths[i] = substitute_path(start_root, end_root, possible_filepaths[i])
+
+                for i in range(len(possible_filepaths)):
+                    # 1st check to see if filename exists
+                    possible_filename = os.path.split(possible_filepaths[i])[1]
+                    if possible_filename not in self.end_map:
+                        continue
+                    # 2nd check if path matches in end_map
+                    if possible_filepaths[i] in self.end_map[possible_filename]["filepaths"]:
+                        if self.proj_map[possible_filepaths[i]] is None:
+                            self.proj_map[possible_filepaths[i]] = path
+                            self.start_map[filename]["filepaths"].remove(path)
+                            self.start_map[filename]["number of paths"] -= 1
+                            if self.start_map[filename]["number of paths"] == 0:
+                                self.start_map.pop(filename)
+                            break
 
     def manual_match(self, start_path, end_path):
         if end_path not in self.proj_map:
             return False
         else:
-            self.proj_map[end_path] = os.path.normpath(start_path)
-            return True
+            if self.proj_map[end_path] is None:
+                self.proj_map[end_path] = os.path.normpath(start_path)
+                return True
 
-    # TODO: underscore rearrangement (decorator), match similar paths
+    def manual_match_from_csv(self):
+        pass
+
+    def permutation_modifications_from_csv(self, csv_path, separator='_', start_root=None, end_root=None,
+                                           use_drops=False, seg_limit=2):
+        """
+        This function adds or removes segments from the permutation (Very Expensive!)
+        """
+        if os.path.exists(csv_path):
+            with open(csv_path, newline='') as csv_file:
+                manual_matches = csv.reader(csv_file, delimiter=',')
+                next(manual_matches)
+                for row in manual_matches:
+                    additions = row[0].split(' ')
+                    removals = row[1].split(' ')
+                    for removal in removals:
+                        if removal == '':
+                            removals.remove(removal)
+                    self.find_permutation_matches(separator=separator, start_root=start_root, end_root=end_root,
+                                                  use_drops=use_drops, seg_limit=seg_limit,
+                                                  manual_adds=additions, manual_removes=removals)
 
     def projection_completion(self):
+        match_count = self.number_of_matches()
+        return match_count / len(self.proj_map)
+
+    def number_of_matches(self):
         match_count = 0
         for path in self.proj_map:
             if self.proj_map[path]:  # counts a match so long as path isn't None
                 match_count += 1
-        return match_count / len(self.proj_map)
+        return match_count
 
     def export_projection_to_json(self, json_path):
         if self.proj_map:
-            if os.path.exists(json_path):
+            if os.path.exists(os.path.split(json_path)[0]):
                 json_object = json.dumps(self.proj_map, indent=4)
                 with open(json_path, "w") as j:
                     j.write(json_object)
             else:
-                print(f'Exporting FileMap Projection {self.__name__} to JSON failed: JSON has an invalid output path:\n'
+                print(f'Exporting FileMap Projection to JSON failed: JSON has an invalid output path:\n'
                       f'Invalid path: {json_path}')
         else:
-            print(f'Exporting FileMap Projection {self.__name__} to JSON failed: has an empty map')
+            print(f'Exporting FileMap Projection to JSON failed: has an empty map')
+
+    def export_maps_to_json(self, start_map_json_path=None, end_map_json_path=None):
+        if self.start_map:
+            if start_map_json_path:
+                FileMap2json(self.start_map, start_map_json_path)
+        if self.end_map:
+            if end_map_json_path:
+                FileMap2json(self.end_map, end_map_json_path)
