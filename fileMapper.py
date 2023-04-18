@@ -4,6 +4,7 @@ import zipfile
 import json
 import csv
 from os_fileMapper import substitute_path, generate_permutations, abs2local_path_convert
+from copy import deepcopy
 
 
 def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
@@ -229,8 +230,8 @@ class FileMap:
 # This structure represents the keys being desired file locations, and values of keys as the filepath to locate the file
 class FileMapProjection:
     def __init__(self, start_FileMap, end_FileMap):
-        self.start_map = start_FileMap.map.copy()
-        self.end_map = end_FileMap.map.copy()
+        self.start_map = deepcopy(start_FileMap.map)
+        self.end_map = deepcopy(end_FileMap.map)
         self.proj_map = {}
         for file in self.end_map:
             for path in self.end_map[file]["filepaths"]:
@@ -258,6 +259,7 @@ class FileMapProjection:
             else:
                 for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
                     new_filepath = substitute_path(start_root, end_root, filepath)  # TODO: Fix this using os.path.split
+                    new_filepath = abs2local_path_convert(new_filepath)
                     if (new_filepath == path) and (self.proj_map[path] is None):
                         self.proj_map[path] = filepath
                         self.start_map[os.path.split(path)[1]]["filepaths"].remove(filepath)
