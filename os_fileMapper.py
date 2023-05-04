@@ -16,7 +16,10 @@ def path2list(filepath):
         path_list.append(split[1])
     path_list.append(split[0])
     path_list.reverse()
-    return path_list
+    if (len(path_list) > 1) and (path_list[0] == ''):
+        return path_list[1:]
+    else:
+        return path_list
 
 
 def list2path(filepath_list):
@@ -59,6 +62,35 @@ def substitute_path(orig_path, sub_path, filepath):
     return filepath
 
 
+def find_path_similarity(filepath1, filepath2):
+    """
+    This method returns the amount of overlap between filepath1 and the max length of another filepath
+    """
+    list1 = path2list(filepath1)
+    list2 = path2list(filepath2)
+    match_count = 0
+    if len(list1) < len(list2):
+        iter_list = list1
+        check_list = list2
+    else:
+        iter_list = list2
+        check_list = list1
+    for i in range(len(iter_list)):
+        count_candidate = 0
+        if iter_list[i] in check_list:
+            for j in range(len(iter_list[i:])):
+                if len(check_list) < (i+j):
+                    break
+                elif iter_list[i+j] == check_list[i+j]:
+                    count_candidate += 1
+            if count_candidate > match_count:
+                match_count = count_candidate
+        else:
+            continue
+    return match_count / len(check_list)
+    # TODO: add spelling similarity to final addition
+
+
 def substitute_filename_in_path(orig_filename, sub_filename, filepath, keep_ext=True):
     name = os.path.split(filepath)
     if name[1] != orig_filename:
@@ -79,6 +111,8 @@ def abs2local_path_convert(filepath):
     """
     if filepath[0] == '\\':
         return filepath[1:]
+    elif filepath[0:1] == '\\\\':
+        return filepath[2:]
     else:
         return filepath
 

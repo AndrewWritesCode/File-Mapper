@@ -51,7 +51,7 @@ def FileMapper(root_dir, extensions2omit=None, extensions2include=None):
             if not file_map:
                 file_info = {
                     "number of paths": path_number,
-                    "filepaths": abs2local_path_convert([str(os.path.join(path, filename))])
+                    "filepaths": [abs2local_path_convert(str(os.path.join(path, filename)))]
                 }
                 file_map[filename] = file_info
             else:
@@ -102,6 +102,16 @@ def GetMapSize(file_map):
     return size
 
 
+def GetDirsInMap(file_map):
+    dirs_in_map = []
+    for filename in file_map:
+        for filepath in file_map[filename]["filepaths"]:
+            filepath = os.path.split(filepath)[0]
+            if filepath not in dirs_in_map:
+                dirs_in_map.append(filepath)
+    return dirs_in_map
+
+
 # Can create a dummy FileMap by passing a tuple in the form (root, file_map dict)
 class FileMap:
     def __init__(self, target_path, extensions2omit=None, extensions2include=None, dummy=None):
@@ -110,6 +120,7 @@ class FileMap:
             self.__map = SmartMapper(target_path, extensions2omit=extensions2omit,
                                      extensions2include=extensions2include)
             self.__size = GetMapSize(self.map)
+            self.__dirs_list = GetDirsInMap(self.map)
             self.__is_dummy = False
         elif isinstance(dummy, dict):
             self.__root = target_path
@@ -147,6 +158,10 @@ class FileMap:
                     return size
                 except KeyError:
                     print(f'Dummy FileMap {self.__name__} improperly configured')
+
+    @property
+    def dirs_list(self):
+        return GetDirsInMap(self.map)
 
     def exists(self):
         return bool(self.map)
@@ -258,7 +273,7 @@ class FileMapProjection:
                 continue
             else:
                 for filepath in self.start_map[os.path.split(path)[1]]["filepaths"]:
-                    new_filepath = substitute_path(start_root, end_root, filepath)  # TODO: Fix this using os.path.split
+                    new_filepath = substitute_path(start_root, end_root, filepath) 
                     new_filepath = abs2local_path_convert(new_filepath)
                     if (new_filepath == path) and (self.proj_map[path] is None):
                         self.proj_map[path] = filepath
